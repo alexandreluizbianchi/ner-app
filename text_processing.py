@@ -1,4 +1,4 @@
-
+import numpy as np
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import to_categorical
 
@@ -51,3 +51,64 @@ def split_one_array(data):
 def one_hot_enc(y, n_entities):
     """ Aplica OneHotEncoding em y """
     return [to_categorical(elem, num_classes=n_entities) for elem in y]
+
+
+
+def print_elements(n, iter, title):
+    """ Faz print de n elementos do iterável """
+
+    print('\n{}:'.format(title))
+    for count, it in enumerate(iter):
+        if it[-1:] != '\n':
+            print(it, '\n')
+        else:
+            print(it)
+        if count == n-1:
+            break
+
+
+def print_lines(n, text, title):
+    """  Faz print das n linhas do texto """
+
+    print('\n{}:'.format(title))
+    line = text.splitlines()
+    for i in range(n+1):
+        print(line[i])
+
+
+
+def print_shapes(title, *arrays):
+    """ Mostra os shapes dos dados de treino e teste """
+
+    line = ''
+    for arr in arrays:
+        line = line + str(np.array(arr).shape) + ' | '
+    line = line[0:-3]
+    
+    print('\n{}{}\n'.format(title, line))
+
+
+
+def shape(arr):
+    return str(np.array(arr).shape)
+
+
+
+def print_sentence_indexes(n, X, y, idx2tok, idx2ent):
+    """ Faz print da indexação dos tokens e labels das n sentenças """
+
+    for i in range(n):
+        print('## Sentença', i+1, '\n')
+
+        print('---> Tokens:')
+        print(X[i])
+        print([idx2tok[j] for j in X[i]])
+        print('')
+
+        print('---> Labels:')
+        print(y[i])
+        print([idx2ent[j] for j in y[i]])
+        print('')
+    print('')
+
+

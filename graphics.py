@@ -5,7 +5,7 @@ import numpy as np
 def show_hist_token_sizes(size_array):
     """ Exibe histograma com as quantidades de tokens em todas as sentenças """
 
-    print(sorted(size_array))
+    #print(sorted(size_array))
 
     _, ax = plt.subplots(figsize=(15,5))
     ax.set_xlabel("Quantidade de tokens em cada sentença")
@@ -26,15 +26,15 @@ def show_hist_classes(df):
     ax.set_title("Distribuição de Classes")
     plt.xticks(rotation=45)
     en = [t for t in df['Entity'] if t != 'O']
+    lst_ents = list(set(en))
 
-
+    """
     d = {}
     for e in en:
         if e in d.keys():
             d[e] = d[e] + 1
         else:
             d[e] = 1
-
     sm = 0
     for k in d.keys():
         print(k, '-->', d[k])
@@ -42,15 +42,12 @@ def show_hist_classes(df):
 
     print('\n#classes:', len(list(d.keys())))
     print('somatorio =', sm, '\n')
-
-
-
-    lst_ents = list(set(en))
-
+    
     print('en:', en)
     print('len(en):', len(en))
     print('\nlist(set(en)):', lst_ents)
     print('len(list(set(en))):', len(lst_ents))
+    """
 
     plt.hist(en, bins=5*len(lst_ents), align='mid')
 

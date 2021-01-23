@@ -1,6 +1,7 @@
 import sys
 import json
 import random
+import numpy as np
 
 import spacy
 from spacy.util import minibatch, compounding
@@ -19,6 +20,10 @@ def build_spacy_dataset(filename):
     with open(filename, mode="r", encoding="utf-8") as f:
 
         lines = f.readlines()
+
+        # Show 5 sentences:
+        tp.print_elements(5, lines, 'Dataset Original')
+
         for line in lines:
 
             json_sent = json.loads(line)
@@ -34,15 +39,10 @@ def build_spacy_dataset(filename):
             
             spacy_dataset.append((json_sent['text'], {'entities':internal_ents})) # (sentence, dict of entities)
     
+    # Show 5 sentences:
+    tp.print_elements(5, spacy_dataset, 'Dataset Spacy')
+
     return spacy_dataset
-
-
-
-def print_shapes(train_data, test_data):
-    """ Mostra os shapes dos dados de treino e teste """
-
-    print('train_data: Shape =', np.array(train_data).shape)
-    print('test_data: Shape =', np.array(test_data).shape)
 
 
 
@@ -77,6 +77,8 @@ def build_train_model(train_data, epochs=32):
 
         # reset and initialize the weights randomly – (training a new model)
         optimizer = nlp.begin_training()
+
+        print('\n')
 
         for it in range(epochs):
 
@@ -113,7 +115,7 @@ def build_train_model(train_data, epochs=32):
                         sgd=optimizer,  # callable to update weights
                         losses=losses)
             """
-            print("Losses:", losses)
+            print("Losses:", losses, '\n')
 
     return nlp
 
@@ -127,7 +129,7 @@ def predict(i, test_data, model):
     # ====> USAR o test_data[i][1] RESPOSTA VERDADEIRA para comparação
 
 
-    print(test_data[i][0], '\n')
+    print('\n' + test_data[i][0] + '\n')
     doc = model(test_data[i][0])
     for ent in doc.ents:
         print("{:20} : {:20}".format(ent.label_, ent.text))
@@ -150,22 +152,28 @@ def user_predictions(model):
 
 
 
-# Constrói o dataset para o Spacy
-spacy_dataset = build_spacy_dataset("dataset_18_01.json")
+# Constrói dataset JSON para Spacy com pré-processamento (conversão de acentos e maiúsculos)
+spacy_dataset = build_spacy_dataset("dataset_22_01.json")
 
 
 # Separa 20% dos dados para teste (com shuffle)
 train_data, test_data = tp.split_one_array(spacy_dataset)
 
+print('\nSeparação de spacy_dataset em dados de treino e teste:')
+print('Dimensões: train_data = {} | test_data = {}'.
+    format(tp.shape(train_data), tp.shape(test_data)))
+
 
 # Exibe os shapes
-print_shapes(train_data, test_data)
+tp.print_shapes('Shapes de: train_data | test_data = ', train_data, test_data)
 
 
 # Treina o modelo NER do Spacy
 model = build_train_model(train_data, epochs=32)
 
 
+"""
 # Faz a predição com os dados de teste
-index = 0
+index = 13
 predict(index, test_data, model)
+"""
