@@ -1,13 +1,27 @@
 import io
+import os
 import json
 import pandas as pd
 import numpy as np
 
-from tensorflow.keras import Model, Input
-from tensorflow.keras.layers import LSTM, Embedding, Dense
-from tensorflow.keras.layers import TimeDistributed, Dropout, Bidirectional
+#from tensorflow.keras import Model, Input
+#from tensorflow.keras.layers import LSTM, Embedding, Dense
+#from tensorflow.keras.layers import TimeDistributed, Dropout, Bidirectional
 
+#import keras
+
+"""
+from keras import Model, Input, models
+from keras.layers import LSTM, Embedding, Dense, TimeDistributed, Dropout, Bidirectional
 from keras.preprocessing.sequence import pad_sequences
+"""
+from tensorflow.keras import Model, Input, models, optimizers
+from tensorflow.keras.layers import LSTM, Embedding, Dense, TimeDistributed, Dropout, Bidirectional
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+
+
+from sklearn.metrics import accuracy_score, f1_score
 
 import text_processing as tp
 import graphics
@@ -68,25 +82,34 @@ def build_csv_dataset(filename):
 
 
 
-def build_compile_model(sent_maxlen, n_tokens, n_entities):
-    """ Constrói e compila o modelo com arquitetura BLSTM """
+def build_model(sent_maxlen, n_tokens, n_entities):
+    """ Constrói o modelo com arquitetura BLSTM """
 
     print('\n')
 
     input_word = Input(shape=(sent_maxlen,))
     #model = Embedding(input_dim=n_tokens, output_dim=sent_maxlen, input_length=sent_maxlen)(input_word)
-    model = Embedding(input_dim=n_tokens, output_dim=50)(input_word)
-    model = Dropout(0.5)(model)
+    model = Embedding(input_dim=n_tokens, output_dim=130)(input_word)
+    model = Dropout(0.6)(model)
     model = Bidirectional(LSTM(units=100, return_sequences=True, recurrent_dropout=0.1))(model)
     out = TimeDistributed(Dense(n_entities, activation="softmax"))(model)
     model = Model(input_word, out)
+    
     model.summary()
 
-    #opt = tf.keras.optimizers.Adam(lr=0.01, decay=1e-6)
-    opt = "adam"
+    return model
+
+
+
+def compile_model(model):
+    """ Compila o modelo """
+
+    opt = optimizers.Adam(lr=0.01, decay=1e-6)
+    #opt = "adam"#lr default = 0.001
     loss = "categorical_crossentropy"
 
     model.compile(optimizer=opt, loss=loss, metrics=["accuracy"])
+    #model.compile(optimizer=opt, loss=loss, metrics=["categorical_accuracy"])
 
     return model
 
@@ -96,7 +119,7 @@ def train_model(model, X_train, y_train):
     """ Treina o modelo com 20% dos dados para validação, e depois retorna o histórico """
 
     print('')
-    return model.fit(X_train, np.array(y_train), batch_size=8, epochs=60, validation_split=0.2, verbose=1)
+    return model.fit(X_train, np.array(y_train), batch_size=1, epochs=30, validation_split=0.2, verbose=1, shuffle=False)
 
 
 
@@ -142,34 +165,57 @@ def iob_to_dict(prediction, sentence, idx2ent):
 
 
 
-def predict(i, X_test, y_test, model, idx2tok, idx2ent):
+#def predict(i, X_test, y_test, model, idx2tok, idx2ent):
+def predict(i):
     """ Faz predição usando X_test[i] - dados de teste """
 
     p = model.predict(np.array([X_test[i]]))
 
-
-    print('\n')
+    
+    
+    # Imprime sentença:
+    #print('\n')
     my_sent = ""
     for ts in X_test[i]:
         my_sent = my_sent + idx2tok[ts] + " "
-    print(my_sent.strip(), '\n')
+    #print(my_sent.strip(), '\n')
 
-
+    """
+    # Imprime no formato Spacy
     gen_dict = iob_to_dict(p, X_test[i], idx2ent)
     for k in gen_dict.keys():
         print("{:20} : {:20}".format(gen_dict[k], k))
+    """
 
-    print('\n')
 
 
     p = np.argmax(p, axis=-1)
     yt = np.argmax(y_test[i], axis=1)
 
-    print("{:20}{:20}\t {}\n".format("Token", "True", "Pred"))
-    print("-" *55)
+    p_label = []
+    yt_label = []
 
+    # comentar
+    print("\n{:20}{:20}\t {}".format("Token", "True", "Pred"))
+    # comentar
+    print("-" *55)
     for t, true, pred in zip(X_test[i], yt, p[0]):
+        # comentar
         print("{:20}{:20}\t{}".format(tokens[t], idx2ent[true], idx2ent[pred]))
+        
+        if tokens[t] != 'PADDING':
+            p_label.append(idx2ent[pred])
+            yt_label.append(idx2ent[true])
+
+    """
+    ## Acuracia: {} | F1-Score macro: {}\n'.format(accuracy_score(yt_label, p_label), 
+        f1_score(yt_label, p_label, average='macro')))
+    """
+
+    col1 = '## Acuracia: {}'.format(accuracy_score(yt_label, p_label))
+    col2 = 'F1-Score macro: {}'.format(f1_score(yt_label, p_label, average='macro'))
+    print('{:40}|\t{:40} --> {}'.format(col1, col2, my_sent[:80]))
+
 
 
 
@@ -191,10 +237,10 @@ print(df_csv_dataset.head(30))
 
 
 # Define variáveis de tokens e entidades únicos
-tokens = list(set(df_csv_dataset['Token'].values))
+tokens = sorted(list(set(df_csv_dataset['Token'].values)))
 tokens.append('PADDING')
 n_tokens = len(tokens)
-entities = list(set(df_csv_dataset['Entity'].values))
+entities = sorted(list(set(df_csv_dataset['Entity'].values)))
 n_entities = len(entities)
 print('\n-->', n_tokens, 'tokens  :', tokens)
 print('\n-->', n_entities, 'entities:', entities, '\n')
@@ -207,7 +253,9 @@ grouped = df_csv_dataset.groupby("Sentence").apply(agg_func)
 sentences = [s for s in grouped]
 sent_len = [len(sent) for sent in sentences]
 sent_maxlen = max(sent_len)
-#sent_maxlen = 30
+
+#sent_maxlen = 30# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 print('\nExploração rápida do dataset:')
 print('\n--> Sentença 1:', sentences[0])
@@ -245,6 +293,9 @@ tp.print_sentence_indexes(2, X, y, idx2tok, idx2ent)
 
 
 # Realiza o padding com o tamanho máximo igual ao maior vetor (sent_maxlen), para X e y
+
+# truncating="post" (corta no final se sentença for maior que sent_maxlen)
+
 X = pad_sequences(maxlen=sent_maxlen, sequences=X, padding="post", value=tok2idx["PADDING"])
 y = pad_sequences(maxlen=sent_maxlen, sequences=y, padding="post", value=ent2idx["O"])
 
@@ -276,19 +327,32 @@ print('Dimensões: X_train = {} | y_train = {} | X_test = {} | y_test = {}'.
     format(tp.shape(X_train), tp.shape(y_train), tp.shape(X_test), tp.shape(y_test)))
 
 
+#if not os.path.exists('BLSTM_model.h5'):
+if True:
 
-# Constrói e compila o modelo, exibindo seu resumo
-model = build_compile_model(sent_maxlen, n_tokens, n_entities)
+    # Constrói e compila o modelo, exibindo seu resumo
+    model = build_model(sent_maxlen, n_tokens, n_entities)
+    model = compile_model(model)
+
+    # Treina o modelo com 20% dos dados para validação
+    history = train_model(model, X_train, y_train)
 
 
-# Treina o modelo com 20% dos dados para validação
-history = train_model(model, X_train, y_train)
+    # Salva modela treinado
+    #models.save_model(model, "BLSTM_model.h5", overwrite = True, include_optimizer = False)#False
 
-"""
+else:
+
+    #model = keras.models.load_model("BLSTM_model.h5", compile = False)
+    model = models.load_model("BLSTM_model.h5", compile = False)#False
+    #model = compile_model(model)
+
+
+
 # Exibe resultados do treino
 graphics.show_training_metric(history, 'accuracy')
 graphics.show_training_metric(history, 'loss')
-"""
+
 
 
 """
