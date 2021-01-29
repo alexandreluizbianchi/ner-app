@@ -33,6 +33,8 @@ else:
 
 """
 
+
+""" TESTE 3 ----------------------------------------------------------------
 import tensorflow as tf
 from tensorflow.keras import layers
 
@@ -42,3 +44,15 @@ embedding_layer = layers.Embedding(500, 5)
 result = embedding_layer(tf.constant([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]))
 
 print(result.numpy())
+"""
+
+
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+X = [[1, 2, 3, 4, 5, 6, 7]]
+print("X antes:", X)
+
+X = pad_sequences(maxlen=3, sequences=X, padding="post", value=99)
+print("X depois:", X)
+
+

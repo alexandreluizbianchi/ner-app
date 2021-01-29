@@ -119,7 +119,7 @@ def train_model(model, X_train, y_train):
     """ Treina o modelo com 20% dos dados para validação, e depois retorna o histórico """
 
     print('')
-    return model.fit(X_train, np.array(y_train), batch_size=1, epochs=30, validation_split=0.2, verbose=1, shuffle=False)
+    return model.fit(X_train, np.array(y_train), batch_size=1, epochs=15, validation_split=0.2, verbose=1, shuffle=False)
 
 
 
@@ -174,18 +174,21 @@ def predict(i):
     
     
     # Imprime sentença:
-    #print('\n')
+    print('\n')
     my_sent = ""
     for ts in X_test[i]:
+        if idx2tok[ts] == 'PADDING':
+            break
         my_sent = my_sent + idx2tok[ts] + " "
-    #print(my_sent.strip(), '\n')
+    print(my_sent.strip())
+    print('\n       ---- BLSTM ----')
 
-    """
+    
     # Imprime no formato Spacy
     gen_dict = iob_to_dict(p, X_test[i], idx2ent)
     for k in gen_dict.keys():
         print("{:20} : {:20}".format(gen_dict[k], k))
-    """
+    
 
 
 
@@ -196,12 +199,15 @@ def predict(i):
     yt_label = []
 
     # comentar
-    print("\n{:20}{:20}\t {}".format("Token", "True", "Pred"))
+    #print("\n{:20}{:20}\t {}".format("Token", "True", "Pred"))
+    
     # comentar
-    print("-" *55)
+    #print("-" *55)
+
     for t, true, pred in zip(X_test[i], yt, p[0]):
+    
         # comentar
-        print("{:20}{:20}\t{}".format(tokens[t], idx2ent[true], idx2ent[pred]))
+        #print("{:20}{:20}\t{}".format(tokens[t], idx2ent[true], idx2ent[pred]))
         
         if tokens[t] != 'PADDING':
             p_label.append(idx2ent[pred])
@@ -212,10 +218,11 @@ def predict(i):
         f1_score(yt_label, p_label, average='macro')))
     """
 
+    """
     col1 = '## Acuracia: {}'.format(accuracy_score(yt_label, p_label))
     col2 = 'F1-Score macro: {}'.format(f1_score(yt_label, p_label, average='macro'))
     print('{:40}|\t{:40} --> {}'.format(col1, col2, my_sent[:80]))
-
+    """
 
 
 
@@ -249,12 +256,11 @@ print('\n-->', n_entities, 'entities:', entities, '\n')
 
 # Define lista de sentenças agrupadas e algumas variáveis
 agg_func = lambda s: [(t, e) for t, e in zip(s["Token"].values.tolist(),s["Entity"].values.tolist())]
-grouped = df_csv_dataset.groupby("Sentence").apply(agg_func)
+grouped = df_csv_dataset.groupby("Sentence", sort=False).apply(agg_func)
 sentences = [s for s in grouped]
 sent_len = [len(sent) for sent in sentences]
 sent_maxlen = max(sent_len)
 
-#sent_maxlen = 30# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 print('\nExploração rápida do dataset:')
@@ -267,8 +273,9 @@ print('\n--> Qtde de tokens de cada sentença:', sent_len)
 print('\n--> Qtde máxima de tokens:', sent_maxlen, '\n')
 
 
-"""
+
 # Visualizações:
+"""
 graphics.show_hist_token_sizes(sent_len)
 graphics.show_hist_classes(df_csv_dataset)
 """
@@ -293,9 +300,6 @@ tp.print_sentence_indexes(2, X, y, idx2tok, idx2ent)
 
 
 # Realiza o padding com o tamanho máximo igual ao maior vetor (sent_maxlen), para X e y
-
-# truncating="post" (corta no final se sentença for maior que sent_maxlen)
-
 X = pad_sequences(maxlen=sent_maxlen, sequences=X, padding="post", value=tok2idx["PADDING"])
 y = pad_sequences(maxlen=sent_maxlen, sequences=y, padding="post", value=ent2idx["O"])
 
@@ -350,9 +354,10 @@ else:
 
 
 # Exibe resultados do treino
+"""
 graphics.show_training_metric(history, 'accuracy')
 graphics.show_training_metric(history, 'loss')
-
+"""
 
 
 """

@@ -129,10 +129,13 @@ def predict(i, test_data, model):
     # ====> USAR o test_data[i][1] RESPOSTA VERDADEIRA para comparação
 
 
-    print('\n' + test_data[i][0] + '\n')
+    #print('\n' + test_data[i][0])
+    print('\n       ---- SPACY ----')
     doc = model(test_data[i][0])
     for ent in doc.ents:
         print("{:20} : {:20}".format(ent.label_, ent.text))
+
+    print('\n\n')
 
 
 
