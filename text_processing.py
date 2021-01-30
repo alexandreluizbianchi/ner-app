@@ -36,6 +36,19 @@ def removes_useless_chars(df):
 
 
 
+def removes_useless_chars_sentence(new_sent):
+    """ Remove chars inúteis no final de cada token da sentença."""
+
+    for ind in range(len(new_sent)):
+    
+        # Remove caracter inútil do final, se houver:
+        if new_sent[ind][-1] in chars_to_remove:
+            new_sent[ind] = new_sent[ind][0:-1]
+
+    return new_sent
+
+
+
 def split_two_arrays(X, y):
     """ Separa os dados: 80% para treino e 20% para teste, com shuffle """
     return train_test_split(X, y, test_size=0.2, random_state=1)

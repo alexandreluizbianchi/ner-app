@@ -89,7 +89,7 @@ def build_model(sent_maxlen, n_tokens, n_entities):
 
     input_word = Input(shape=(sent_maxlen,))
     #model = Embedding(input_dim=n_tokens, output_dim=sent_maxlen, input_length=sent_maxlen)(input_word)
-    model = Embedding(input_dim=n_tokens, output_dim=130)(input_word)
+    model = Embedding(input_dim=n_tokens*2, output_dim=130)(input_word)
     model = Dropout(0.6)(model)
     model = Bidirectional(LSTM(units=100, return_sequences=True, recurrent_dropout=0.1))(model)
     out = TimeDistributed(Dense(n_entities, activation="softmax"))(model)
@@ -162,6 +162,64 @@ def iob_to_dict(prediction, sentence, idx2ent):
                 ret[current_text] = current_label
 
     return ret
+
+
+def predict_any(new_sent):
+    """ Classifica nova sentença OOV (Out Of Vocabulary) """
+
+    global idx2tok
+
+    # Limpeza e tokenização da nova sentença:
+    new_sent = tp.token_transform(new_sent)
+    new_tokens = tp.removes_useless_chars_sentence(new_sent.split())
+    print('Pós limpeza e tokenização:', new_tokens)
+
+    # Indexação dos tokens, criação de índices que não existem:
+
+    new_test = []
+
+    for t in new_tokens:
+
+        if t not in tok2idx.keys():
+            next_i = tok2idx[list(tok2idx.keys())[-1]] + 1
+            tok2idx[t] = next_i
+            tokens.append(t)
+
+        new_test.append(tok2idx[t])
+
+    # Redefine este dicionário
+    idx2tok = {i: t for t, i in tok2idx.items()}
+
+    print('Pós indexação:', new_test)
+    print('shape inicial:', np.array(new_test).shape)
+
+    # Acerto do padding:
+    new_test = pad_sequences(maxlen=sent_maxlen, sequences=[new_test], padding="post", value=tok2idx["PADDING"])
+    print('shape final:', np.array(new_test).shape)
+
+    tst = np.array([new_test[0]])
+    print('shape input:', tst.shape)
+
+    # Predição:
+    p = model.predict(tst)
+    print('----------------- OK ---------------')
+
+    # Imprime sentença:
+    print('\n')
+    my_sent = ""
+    for ts in new_test[0]:
+        if idx2tok[ts] == 'PADDING':
+            break
+        my_sent = my_sent + idx2tok[ts] + " "
+    print(my_sent.strip())
+    print('\n       ---- BLSTM ----')
+
+    
+    # Imprime no formato Spacy
+    gen_dict = iob_to_dict(p, new_test[0], idx2ent)
+    for k in gen_dict.keys():
+        print("{:20} : {:20}".format(gen_dict[k], k))
+
 
 
 

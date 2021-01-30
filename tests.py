@@ -47,6 +47,7 @@ print(result.numpy())
 """
 
 
+""" TESTE 4 ----------------------------------------------------------------
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 X = [[1, 2, 3, 4, 5, 6, 7]]
@@ -54,5 +55,20 @@ print("X antes:", X)
 
 X = pad_sequences(maxlen=3, sequences=X, padding="post", value=99)
 print("X depois:", X)
+"""
+
+
+to_index = {'marte':0, 'terra':1, 'venus':2, 'jupiter':3, 'mercurio':4, 'saturno':5}
+
+lst = ['terra', 'saturno', 'plutao', 'marte', 'sol', 'venus', 'lua']
+
+for t in lst:
+
+    if t not in to_index.keys():
+        next_i = to_index[list(to_index.keys())[-1]] + 1
+        to_index[t] = next_i
+
+    print(t, ':', to_index[t])
+
 
 
