@@ -4,22 +4,9 @@ import json
 import pandas as pd
 import numpy as np
 
-#from tensorflow.keras import Model, Input
-#from tensorflow.keras.layers import LSTM, Embedding, Dense
-#from tensorflow.keras.layers import TimeDistributed, Dropout, Bidirectional
-
-#import keras
-
-"""
-from keras import Model, Input, models
-from keras.layers import LSTM, Embedding, Dense, TimeDistributed, Dropout, Bidirectional
-from keras.preprocessing.sequence import pad_sequences
-"""
 from tensorflow.keras import Model, Input, models, optimizers
 from tensorflow.keras.layers import LSTM, Embedding, Dense, TimeDistributed, Dropout, Bidirectional
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-
-
 
 from sklearn.metrics import accuracy_score, f1_score
 
@@ -88,7 +75,6 @@ def build_model(sent_maxlen, n_tokens, n_entities):
     print('\n')
 
     input_word = Input(shape=(sent_maxlen,))
-    #model = Embedding(input_dim=n_tokens, output_dim=sent_maxlen, input_length=sent_maxlen)(input_word)
     model = Embedding(input_dim=n_tokens*2, output_dim=130)(input_word)
     model = Dropout(0.6)(model)
     model = Bidirectional(LSTM(units=100, return_sequences=True, recurrent_dropout=0.1))(model)
@@ -105,12 +91,11 @@ def compile_model(model):
     """ Compila o modelo """
 
     opt = optimizers.Adam(lr=0.01, decay=1e-6)
-    #opt = "adam"#lr default = 0.001
+    #opt = "adam"
+
     loss = "categorical_crossentropy"
 
     model.compile(optimizer=opt, loss=loss, metrics=["accuracy"])
-    #model.compile(optimizer=opt, loss=loss, metrics=["categorical_accuracy"])
-
     return model
 
 
@@ -222,15 +207,11 @@ def predict_any(new_sent):
 
 
 
-
-#def predict(i, X_test, y_test, model, idx2tok, idx2ent):
 def predict(i):
     """ Faz predição usando X_test[i] - dados de teste """
 
     p = model.predict(np.array([X_test[i]]))
 
-    
-    
     # Imprime sentença:
     print('\n')
     my_sent = ""
@@ -241,14 +222,10 @@ def predict(i):
     print(my_sent.strip())
     print('\n       ---- BLSTM ----')
 
-    
     # Imprime no formato Spacy
     gen_dict = iob_to_dict(p, X_test[i], idx2ent)
     for k in gen_dict.keys():
         print("{:20} : {:20}".format(gen_dict[k], k))
-    
-
-
 
     p = np.argmax(p, axis=-1)
     yt = np.argmax(y_test[i], axis=1)
@@ -256,34 +233,21 @@ def predict(i):
     p_label = []
     yt_label = []
 
-    # comentar
-    #print("\n{:20}{:20}\t {}".format("Token", "True", "Pred"))
-    
-    # comentar
-    #print("-" *55)
-
     for t, true, pred in zip(X_test[i], yt, p[0]):
-    
-        # comentar
-        #print("{:20}{:20}\t{}".format(tokens[t], idx2ent[true], idx2ent[pred]))
-        
+
         if tokens[t] != 'PADDING':
             p_label.append(idx2ent[pred])
             yt_label.append(idx2ent[true])
 
-    """
-    ## Acuracia: {} | F1-Score macro: {}\n'.format(accuracy_score(yt_label, p_label), 
-        f1_score(yt_label, p_label, average='macro')))
-    """
-
-    """
     col1 = '## Acuracia: {}'.format(accuracy_score(yt_label, p_label))
     col2 = 'F1-Score macro: {}'.format(f1_score(yt_label, p_label, average='macro'))
-    print('{:40}|\t{:40} --> {}'.format(col1, col2, my_sent[:80]))
-    """
+    print('\n{:40}|\t{:40}\n'.format(col1, col2))
+
+    return accuracy_score(yt_label, p_label), f1_score(yt_label, p_label, average='macro')
 
 
 
+# ------------------------------ Início do Pipeline BLSTM ------------------------------
 
 # Constrói dataset CSV IOB com pré-processamento (conversão de acentos e maiúsculos)
 csv_dataset = build_csv_dataset("dataset_22_01.json")
@@ -311,14 +275,12 @@ print('\n-->', n_tokens, 'tokens  :', tokens)
 print('\n-->', n_entities, 'entities:', entities, '\n')
 
 
-
 # Define lista de sentenças agrupadas e algumas variáveis
 agg_func = lambda s: [(t, e) for t, e in zip(s["Token"].values.tolist(),s["Entity"].values.tolist())]
 grouped = df_csv_dataset.groupby("Sentence", sort=False).apply(agg_func)
 sentences = [s for s in grouped]
 sent_len = [len(sent) for sent in sentences]
 sent_maxlen = max(sent_len)
-
 
 
 print('\nExploração rápida do dataset:')
@@ -331,12 +293,9 @@ print('\n--> Qtde de tokens de cada sentença:', sent_len)
 print('\n--> Qtde máxima de tokens:', sent_maxlen, '\n')
 
 
-
-# Visualizações:
-"""
+# Visualizações (podem ser comentadas para não interromper o fluxo):
 graphics.show_hist_token_sizes(sent_len)
 graphics.show_hist_classes(df_csv_dataset)
-"""
 
 
 # Define dicionários para conversões de/para índices
@@ -346,7 +305,6 @@ idx2tok = {i: t for t, i in tok2idx.items()}
 idx2ent = {i: e for e, i in ent2idx.items()}
 
 
-
 # Define vetores de entrada (palavras e labels) como X e y
 X = [[tok2idx[pair[0]] for pair in sent] for sent in sentences]
 y = [[ent2idx[pair[1]] for pair in sent] for sent in sentences]
@@ -354,7 +312,6 @@ y = [[ent2idx[pair[1]] for pair in sent] for sent in sentences]
 # Mostra indexações para 2 sentenças
 print('\nVerificação da indexação dos tokens e entities ANTES do padding:')
 tp.print_sentence_indexes(2, X, y, idx2tok, idx2ent)
-
 
 
 # Realiza o padding com o tamanho máximo igual ao maior vetor (sent_maxlen), para X e y
@@ -369,7 +326,6 @@ tp.print_sentence_indexes(2, X, y, idx2tok, idx2ent)
 print('\nVerificação da nova dimensão dos vetores X e y após o padding:')
 print('X:', [len(sz) for sz in X])
 print('y:', [len(sz) for sz in y])
-
 
 
 # Aplica One Hot Encoding nos labels (que não passarão pela camada de Embedding)
@@ -389,8 +345,19 @@ print('Dimensões: X_train = {} | y_train = {} | X_test = {} | y_test = {}'.
     format(tp.shape(X_train), tp.shape(y_train), tp.shape(X_test), tp.shape(y_test)))
 
 
-#if not os.path.exists('BLSTM_model.h5'):
-if True:
+#  Opção 1: sempre treinar o modelo:
+
+# Constrói e compila o modelo, exibindo seu resumo
+model = build_model(sent_maxlen, n_tokens, n_entities)
+model = compile_model(model)
+
+# Treina o modelo com 20% dos dados para validação, batch=1, epocas=15
+history = train_model(model, X_train, y_train)
+
+
+# Opção 2: carregar o modelo treinado, se existir:
+"""
+if not os.path.exists('BLSTM_model.h5'):
 
     # Constrói e compila o modelo, exibindo seu resumo
     model = build_model(sent_maxlen, n_tokens, n_entities)
@@ -399,27 +366,16 @@ if True:
     # Treina o modelo com 20% dos dados para validação
     history = train_model(model, X_train, y_train)
 
-
     # Salva modela treinado
-    #models.save_model(model, "BLSTM_model.h5", overwrite = True, include_optimizer = False)#False
+    models.save_model(model, "BLSTM_model.h5", overwrite = True, include_optimizer = False)
 
 else:
-
-    #model = keras.models.load_model("BLSTM_model.h5", compile = False)
-    model = models.load_model("BLSTM_model.h5", compile = False)#False
-    #model = compile_model(model)
-
-
-
-# Exibe resultados do treino
+    model = models.load_model("BLSTM_model.h5", compile = False)
 """
+
+
+# Exibe resultados do treino.
+# Visualizações (podem ser comentadas para não interromper o fluxo):
 graphics.show_training_metric(history, 'accuracy')
 graphics.show_training_metric(history, 'loss')
-"""
 
-
-"""
-# Faz predições com dados de teste
-index = 13
-predict(index, X_test, y_test, model, idx2tok, idx2ent)
-"""

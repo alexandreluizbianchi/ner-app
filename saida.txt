@@ -1,0 +1,695 @@
+>python app.py
+2021-02-06 13:47:40.434645: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'cudart64_110.dll'; dlerror: cudart64_110.dll not found
+2021-02-06 13:47:40.438908: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+
+Dataset Original:
+{"id": 1, "text": "Procuro por um apartamento para comprar, na região norte de Campinas, com valor de até 500 mil, condomínio até 400 reais", "meta": {}, "annotation_approver": null, "labels": [[15, 26, "tipo_imovel"], [44, 56, "local_ref"], [60, 68, "cidade"], [87, 94, "vlr_max_imovel"], [111, 114, "vlr_max_condom"]]}
+
+{"id": 2, "text": "Gostaria de alugar um sobrado com no mínimo 2 quartos, próximo ao shopping Iguatemi, em São Carlos, com valor máximo de R$ 800,00 e área mínima de 100 m2", "meta": {}, "annotation_approver": null, "labels": [[22, 29, "tipo_imovel"], [55, 83, "local_ref"], [88, 98, "cidade"], [123, 129, "vlr_max_imovel"]]}
+
+{"id": 3, "text": "Quero comprar um lote em condomínio fechado que seja perto do centro de Rio Claro, com valor de até 200.000 reais", "meta": {}, "annotation_approver": null, "labels": [[17, 35, "tipo_imovel"], [53, 68, "local_ref"], [72, 81, "cidade"], [100, 107, "vlr_max_imovel"]]}
+
+{"id": 4, "text": "Tenho interesse em casa de condomínio que tenha no mínimo 4 dormitórios, na zona sul de São Paulo, até 1,5 milhões, idade do imóvel até 10 anos, condomínio no máximo 600,00 e iptu de no máximo 6 mil anual", "meta": {}, "annotation_approver": null, "labels": [[19, 37, "tipo_imovel"], [76, 84, "local_ref"], [88, 97, "cidade"], [103, 114, "vlr_max_imovel"], [166, 172, "vlr_max_condom"]]}
+
+{"id": 5, "text": "Terreno de esquina próximo à praia com valor máximo de 200 mil", "meta": {}, "annotation_approver": null, "labels": [[0, 7, "tipo_imovel"], [11, 34, "local_ref"], [55, 62, "vlr_max_imovel"]]}
+
+
+Dataset CSV IOB:
+Sentence;Token;Entity
+sentence-1;procuro;O
+sentence-1;por;O
+sentence-1;um;O
+sentence-1;apartamento;B-tipo_imovel
+sentence-1;para;O
+sentence-1;comprar,;O
+sentence-1;na;O
+sentence-1;regiao;B-local_ref
+sentence-1;norte;I-local_ref
+sentence-1;de;O
+sentence-1;campinas,;B-cidade
+sentence-1;com;O
+sentence-1;valor;O
+sentence-1;de;O
+sentence-1;ate;O
+sentence-1;500;B-vlr_max_imovel
+sentence-1;mil,;I-vlr_max_imovel
+sentence-1;condominio;O
+sentence-1;ate;O
+sentence-1;400;B-vlr_max_condom
+sentence-1;reais;O
+sentence-2;gostaria;O
+sentence-2;de;O
+sentence-2;alugar;O
+sentence-2;um;O
+sentence-2;sobrado;B-tipo_imovel
+sentence-2;com;O
+sentence-2;no;O
+sentence-2;minimo;O
+sentence-2;2;O
+
+DataFrame Original:
+      Sentence        Token            Entity
+0   sentence-1      procuro                 O
+1   sentence-1          por                 O
+2   sentence-1           um                 O
+3   sentence-1  apartamento     B-tipo_imovel
+4   sentence-1         para                 O
+5   sentence-1     comprar,                 O
+6   sentence-1           na                 O
+7   sentence-1       regiao       B-local_ref
+8   sentence-1        norte       I-local_ref
+9   sentence-1           de                 O
+10  sentence-1    campinas,          B-cidade
+11  sentence-1          com                 O
+12  sentence-1        valor                 O
+13  sentence-1           de                 O
+14  sentence-1          ate                 O
+15  sentence-1          500  B-vlr_max_imovel
+16  sentence-1         mil,  I-vlr_max_imovel
+17  sentence-1   condominio                 O
+18  sentence-1          ate                 O
+19  sentence-1          400  B-vlr_max_condom
+20  sentence-1        reais                 O
+21  sentence-2     gostaria                 O
+22  sentence-2           de                 O
+23  sentence-2       alugar                 O
+24  sentence-2           um                 O
+25  sentence-2      sobrado     B-tipo_imovel
+26  sentence-2          com                 O
+27  sentence-2           no                 O
+28  sentence-2       minimo                 O
+29  sentence-2            2                 O
+
+DataFrame Sem Pontuações:
+      Sentence        Token            Entity
+0   sentence-1      procuro                 O
+1   sentence-1          por                 O
+2   sentence-1           um                 O
+3   sentence-1  apartamento     B-tipo_imovel
+4   sentence-1         para                 O
+5   sentence-1      comprar                 O
+6   sentence-1           na                 O
+7   sentence-1       regiao       B-local_ref
+8   sentence-1        norte       I-local_ref
+9   sentence-1           de                 O
+10  sentence-1     campinas          B-cidade
+11  sentence-1          com                 O
+12  sentence-1        valor                 O
+13  sentence-1           de                 O
+14  sentence-1          ate                 O
+15  sentence-1          500  B-vlr_max_imovel
+16  sentence-1          mil  I-vlr_max_imovel
+17  sentence-1   condominio                 O
+18  sentence-1          ate                 O
+19  sentence-1          400  B-vlr_max_condom
+20  sentence-1        reais                 O
+21  sentence-2     gostaria                 O
+22  sentence-2           de                 O
+23  sentence-2       alugar                 O
+24  sentence-2           um                 O
+25  sentence-2      sobrado     B-tipo_imovel
+26  sentence-2          com                 O
+27  sentence-2           no                 O
+28  sentence-2       minimo                 O
+29  sentence-2            2                 O
+
+--> 271 tokens  : ['1', '1,5', '1.000', '1.000,00', '1.000.000', '1.500.000', '10', '100', '1000', '150', '2', '200', '200.000', '2000', '20m2', '230', '250', '3', '300', '300,00', '300m2', '30m2', '340', '350', '370,00', '4', '40', '400', '450', '45m2', '460', '480', '5', '500', '500,00', '500.000,00', '550', '6', '600', '600,00', '600.000', '650', '670', '700', '700,00', '700.000', '70m2', '769,00', '780', '780,00', '800', '800,00', '900', '900000', '950', '950,00', 'a', 'adquirir', 'aguas', 'alegre', 'alta', 'alugar', 'aluguel', 'anos', 'anual', 'ao', 'apartamento', 'aproximadamente', 'araraquara', 'area', 'armazem', 'ate', 'banheiros', 'barbacena', 'bauru', 'belo', 'bem', 'betim', 'bosque', 'braganca', 'brasilia', 'busco', 'caldas', 'campinas', 'campos', 'carlos', 'carro', 'carros', 'casa', 'central', 'centro', 'chacara', 'cidade', 'claro', 'com', 'comercial', 'compra', 'comprar', 'condominio', 'conselheiro', 'construcao', 'coracoes', 'corumbatai', 'cujo', 'da', 'das', 'de', 'deposito', 'desejo', 'do', 'dormitorios', 'dos', 'e', 'em', 'encontrar', 'escritorio', 'esquina', 'esteja', 'estou', 'estrada', 'estudio', 'eu', 'fabrica', 'faculdade', 'faixa', 'fazenda', 'fechado', 'filho', 'final', 'flat', 'florianopolis', 'fora', 'fortaleza', 'gado', 'galpao', 'garagem', 'gostaria', 'grande', 'guaruja', 'horizonte', 'hortolandia', 'ibate', 'idade', 'iguatemi', 'imovel', 'interesse', 'iptu', 'janeiro', 'jordao', 'jose', 'juiz', 'kitnet', 'lado', 'lafaiete', 'lago', 'lagos', 'leste', 'letras', 'lindoia', 'linha', 'localizada', 'localizado', 'loja', 'lote', 'm', 'm2', 'manaus', 'maresias', 'maria', 'maximo', 'medio', 'mensais', 'mensal', 'mes', 'metro', 'metros', 'meu', 'mil', 'milhao', 'milhoes', 'minima', 'minimo', 'mobiliado', 'morro', 'municipal', 'na', 'necessito', 'nery', 'neves', 'niteroi', 'no', 'norte', 'nova', 'novas', 'num', 'numa', 'odessa', 'oeste', 'onibus', 'ouro', 'pago', 'para', 'parque', 'paulinia', 'paulista', 'paulo', 'pequena', 'perto', 'piscina', 'ponto', 'por', 'porto', 'praca', 'praia', 'preciso', 'preto', 'procura', 'procura-se', 'procurando', 'procuro', 'proxima', 'proximo', 'quartos', 'que', 'querendo', 'queria', 'quero', 'r$', 'raul', 'reais', 'recife', 'regiao', 'ribeirao', 'rio', 'rural', 'sala', 'salao', 'salvador', 'santos', 'sao', 'seja', 'semana', 'shopping', 'sitio', 'situada', 'soares', 'sobrado', 'sorocaba', 'suite', 'sul', 'tenha', 'tenho', 'terreno', 'tome', 'trem', 'tres', 'ubatuba', 'uberaba', 'uberlandia', 'um', 'uma', 'universidade', 'uns', 'vaga', 'vagas', 'valor', 'vargem', 'vila', 'volta', 'zona', 'PADDING']
+
+--> 10 entities: ['B-cidade', 'B-local_ref', 'B-tipo_imovel', 'B-vlr_max_condom', 'B-vlr_max_imovel', 'I-cidade', 'I-local_ref', 'I-tipo_imovel', 'I-vlr_max_imovel', 'O']
+
+
+Exploração rápida do dataset:
+
+--> Sentença 1: [('procuro', 'O'), ('por', 'O'), ('um', 'O'), ('apartamento', 'B-tipo_imovel'), ('para', 'O'), ('comprar', 'O'), ('na', 'O'), ('regiao', 'B-local_ref'), ('norte', 'I-local_ref'), ('de', 'O'), ('campinas', 'B-cidade'), ('com', 'O'), ('valor', 'O'), ('de', 'O'), ('ate', 'O'), ('500', 'B-vlr_max_imovel'), ('mil', 'I-vlr_max_imovel'), ('condominio', 'O'), ('ate', 'O'), ('400', 'B-vlr_max_condom'), ('reais', 'O')]
+
+--> Sentença 2: [('gostaria', 'O'), ('de', 'O'), ('alugar', 'O'), ('um', 'O'), ('sobrado', 'B-tipo_imovel'), ('com', 'O'), ('no', 'O'), ('minimo', 'O'), ('2', 'O'), ('quartos', 'O'), ('proximo', 'B-local_ref'), ('ao', 'I-local_ref'), ('shopping', 'I-local_ref'), ('iguatemi', 'I-local_ref'), ('em', 'O'), ('sao', 'B-cidade'), ('carlos', 'I-cidade'), ('com', 'O'), ('valor', 'O'), ('maximo', 'O'), ('de', 'O'), ('r$', 'O'), ('800,00', 'B-vlr_max_imovel'), ('e', 'O'), ('area', 'O'), ('minima', 'O'), ('de', 'O'), ('100', 'O'), ('m2', 'O')]
+
+--> Sentença 3: [('quero', 'O'), ('comprar', 'O'), ('um', 'O'), ('lote', 'B-tipo_imovel'), ('em', 'I-tipo_imovel'), ('condominio', 'I-tipo_imovel'), ('fechado', 'O'), ('que', 'O'), ('seja', 'O'), ('perto', 'B-local_ref'), ('do', 'I-local_ref'), ('centro', 'I-local_ref'), ('de', 'O'), ('rio', 'B-cidade'), ('claro', 'I-cidade'), ('com', 'O'), ('valor', 'O'), ('de', 'O'), ('ate', 'O'), ('200.000', 'B-vlr_max_imovel'), ('reais', 'O')]
+
+--> Sentença 4: [('tenho', 'O'), ('interesse', 'O'), ('em', 'O'), ('casa', 'B-tipo_imovel'), ('de', 'I-tipo_imovel'), ('condominio', 'I-tipo_imovel'), ('que', 'O'), ('tenha', 'O'), ('no', 'O'), ('minimo', 'O'), ('4', 'O'), ('dormitorios', 'O'), ('na', 'O'), ('zona', 'B-local_ref'), ('sul', 'I-local_ref'), ('de', 'O'), ('sao', 'B-cidade'), ('paulo', 'I-cidade'), ('ate', 'O'), ('1,5', 'B-vlr_max_imovel'), ('milhoes', 'I-vlr_max_imovel'), ('idade', 'O'), ('do', 'O'), ('imovel', 'O'), ('ate', 'O'), ('10', 'O'), ('anos', 'O'), ('condominio', 'O'), ('no', 'O'), ('maximo', 'O'), ('600,00', 'B-vlr_max_condom'), ('e', 'O'), ('iptu', 'O'), ('de', 'O'), ('no', 'O'), ('maximo', 'O'), ('6', 'O'), ('mil', 'O'), ('anual', 'O')]
+
+--> Quantidade de sentenças: 70
+
+--> Qtde de tokens de cada sentença: [21, 29, 21, 39, 12, 18, 16, 21, 18, 11, 28, 10, 24, 18, 9, 13, 11, 15, 30, 17, 21, 10, 13, 24, 21, 17, 15, 21, 13, 17, 22, 22, 27, 20, 21, 14, 26, 13, 17, 18, 24, 13, 24, 21, 25, 16, 17, 25, 15, 20, 19, 17, 16, 24, 18, 24, 20, 24, 25, 24, 14, 18, 17, 27, 25, 18, 20, 21, 23, 21]
+
+--> Qtde máxima de tokens: 39
+
+
+Verificação da indexação dos tokens e entities ANTES do padding:
+## Sentença 1
+
+---> Tokens:
+[219, 210, 259, 66, 201, 97, 185, 231, 191, 106, 83, 94, 265, 106, 71, 33, 177, 98, 71, 27, 229]
+['procuro', 'por', 'um', 'apartamento', 'para', 'comprar', 'na', 'regiao', 'norte', 'de', 'campinas', 'com', 'valor', 'de', 'ate', '500', 'mil', 'condominio', 'ate', '400', 'reais']
+
+---> Labels:
+[9, 9, 9, 2, 9, 9, 9, 1, 6, 9, 0, 9, 9, 9, 9, 4, 8, 9, 9, 3, 9]
+['O', 'O', 'O', 'B-tipo_imovel', 'O', 'O', 'O', 'B-local_ref', 'I-local_ref', 'O', 'B-cidade', 'O', 'O', 'O', 'O', 'B-vlr_max_imovel', 'I-vlr_max_imovel', 'O', 'O', 'B-vlr_max_condom', 'O']
+
+## Sentença 2
+
+---> Tokens:
+[136, 106, 61, 259, 246, 94, 190, 181, 10, 222, 221, 65, 242, 143, 113, 239, 85, 94, 265, 169, 106, 227, 51, 112, 69, 180, 106, 7, 165]
+['gostaria', 'de', 'alugar', 'um', 'sobrado', 'com', 'no', 'minimo', '2', 'quartos', 'proximo', 'ao', 'shopping', 'iguatemi', 'em', 'sao', 'carlos', 'com', 'valor', 'maximo', 'de', 'r$', '800,00', 'e', 'area', 'minima', 'de', '100', 'm2']
+
+---> Labels:
+[9, 9, 9, 9, 2, 9, 9, 9, 9, 9, 1, 6, 6, 6, 9, 0, 5, 9, 9, 9, 9, 9, 4, 9, 9, 9, 9, 9, 9]
+['O', 'O', 'O', 'O', 'B-tipo_imovel', 'O', 'O', 'O', 'O', 'O', 'B-local_ref', 'I-local_ref', 'I-local_ref', 'I-local_ref', 'O', 'B-cidade', 'I-cidade', 'O', 'O', 'O', 'O', 'O', 'B-vlr_max_imovel', 'O', 'O', 'O', 'O', 'O', 'O']
+
+
+
+Verificação da indexação dos tokens e entities DEPOIS do padding:
+## Sentença 1
+
+---> Tokens:
+[219 210 259  66 201  97 185 231 191 106  83  94 265 106  71  33 177  98
+  71  27 229 270 270 270 270 270 270 270 270 270 270 270 270 270 270 270
+ 270 270 270]
+['procuro', 'por', 'um', 'apartamento', 'para', 'comprar', 'na', 'regiao', 'norte', 'de', 'campinas', 'com', 'valor', 'de', 'ate', '500', 'mil', 'condominio', 'ate', '400', 'reais', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING']
+
+---> Labels:
+[9 9 9 2 9 9 9 1 6 9 0 9 9 9 9 4 8 9 9 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9
+ 9 9]
+['O', 'O', 'O', 'B-tipo_imovel', 'O', 'O', 'O', 'B-local_ref', 'I-local_ref', 'O', 'B-cidade', 'O', 'O', 'O', 'O', 'B-vlr_max_imovel', 'I-vlr_max_imovel', 'O', 'O', 'B-vlr_max_condom', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+
+## Sentença 2
+
+---> Tokens:
+[136 106  61 259 246  94 190 181  10 222 221  65 242 143 113 239  85  94
+ 265 169 106 227  51 112  69 180 106   7 165 270 270 270 270 270 270 270
+ 270 270 270]
+['gostaria', 'de', 'alugar', 'um', 'sobrado', 'com', 'no', 'minimo', '2', 'quartos', 'proximo', 'ao', 'shopping', 'iguatemi', 'em', 'sao', 'carlos', 'com', 'valor', 'maximo', 'de', 'r$', '800,00', 'e', 'area', 'minima', 'de', '100', 'm2', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING', 'PADDING']
+
+---> Labels:
+[9 9 9 9 2 9 9 9 9 9 1 6 6 6 9 0 5 9 9 9 9 9 4 9 9 9 9 9 9 9 9 9 9 9 9 9 9
+ 9 9]
+['O', 'O', 'O', 'O', 'B-tipo_imovel', 'O', 'O', 'O', 'O', 'O', 'B-local_ref', 'I-local_ref', 'I-local_ref', 'I-local_ref', 'O', 'B-cidade', 'I-cidade', 'O', 'O', 'O', 'O', 'O', 'B-vlr_max_imovel', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+
+
+
+Verificação da nova dimensão dos vetores X e y após o padding:
+X: [39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39]
+y: [39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39]
+
+Dimensões dos labels (y) antes do OneHot Encoding:
+[(39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,), (39,)]
+
+Dimensões dos labels (y) depois do OneHot Encoding:
+[(39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10), (39, 10)]
+
+Separação de X e y em dados de treino e teste:
+Dimensões: X_train = (56, 39) | y_train = (56, 39, 10) | X_test = (14, 39) | y_test = (14, 39, 10)
+
+
+2021-02-06 13:47:50.630764: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-02-06 13:47:50.636861: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library nvcuda.dll
+2021-02-06 13:47:51.313626: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties:
+pciBusID: 0000:01:00.0 name: GeForce MX150 computeCapability: 6.1
+coreClock: 1.5315GHz coreCount: 3 deviceMemorySize: 2.00GiB deviceMemoryBandwidth: 44.76GiB/s
+2021-02-06 13:47:51.319780: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'cudart64_110.dll'; dlerror: cudart64_110.dll not found
+2021-02-06 13:47:51.326039: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'cublas64_11.dll'; dlerror: cublas64_11.dll not found
+2021-02-06 13:47:51.352058: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'cublasLt64_11.dll'; dlerror: cublasLt64_11.dll not found
+2021-02-06 13:47:51.363197: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'cufft64_10.dll'; dlerror: cufft64_10.dll not found
+2021-02-06 13:47:51.373744: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'curand64_10.dll'; dlerror: curand64_10.dll not found
+2021-02-06 13:47:51.382995: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'cusolver64_10.dll'; dlerror: cusolver64_10.dll not found
+2021-02-06 13:47:51.409694: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'cusparse64_11.dll'; dlerror: cusparse64_11.dll not found
+2021-02-06 13:47:51.436166: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'cudnn64_8.dll'; dlerror: cudnn64_8.dll not found
+2021-02-06 13:47:51.443170: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1757] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+2021-02-06 13:47:51.474721: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-02-06 13:47:51.500960: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1261] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-02-06 13:47:51.504104: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1267]
+2021-02-06 13:47:51.518927: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set
+Model: "model"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+input_1 (InputLayer)         [(None, 39)]              0
+_________________________________________________________________
+embedding (Embedding)        (None, 39, 130)           70460
+_________________________________________________________________
+dropout (Dropout)            (None, 39, 130)           0
+_________________________________________________________________
+bidirectional (Bidirectional (None, 39, 200)           184800
+_________________________________________________________________
+time_distributed (TimeDistri (None, 39, 10)            2010
+=================================================================
+Total params: 257,270
+Trainable params: 257,270
+Non-trainable params: 0
+_________________________________________________________________
+
+2021-02-06 13:47:52.018446: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)
+Epoch 1/15
+44/44 [==============================] - 5s 56ms/step - loss: 0.9850 - accuracy: 0.7429 - val_loss: 0.3633 - val_accuracy: 0.8718
+Epoch 2/15
+44/44 [==============================] - 1s 29ms/step - loss: 0.3491 - accuracy: 0.8817 - val_loss: 0.1756 - val_accuracy: 0.9573
+Epoch 3/15
+44/44 [==============================] - 1s 28ms/step - loss: 0.1506 - accuracy: 0.9500 - val_loss: 0.1317 - val_accuracy: 0.9573
+Epoch 4/15
+44/44 [==============================] - 1s 27ms/step - loss: 0.1162 - accuracy: 0.9595 - val_loss: 0.0970 - val_accuracy: 0.9679
+Epoch 5/15
+44/44 [==============================] - 1s 26ms/step - loss: 0.0612 - accuracy: 0.9809 - val_loss: 0.0942 - val_accuracy: 0.9701
+Epoch 6/15
+44/44 [==============================] - 1s 27ms/step - loss: 0.0292 - accuracy: 0.9918 - val_loss: 0.1280 - val_accuracy: 0.9679
+Epoch 7/15
+44/44 [==============================] - 1s 27ms/step - loss: 0.0177 - accuracy: 0.9975 - val_loss: 0.0956 - val_accuracy: 0.9765
+Epoch 8/15
+44/44 [==============================] - 1s 27ms/step - loss: 0.0058 - accuracy: 0.9989 - val_loss: 0.0868 - val_accuracy: 0.9786
+Epoch 9/15
+44/44 [==============================] - 1s 27ms/step - loss: 0.0059 - accuracy: 0.9981 - val_loss: 0.0802 - val_accuracy: 0.9829
+Epoch 10/15
+44/44 [==============================] - 1s 27ms/step - loss: 0.0089 - accuracy: 0.9956 - val_loss: 0.0770 - val_accuracy: 0.9786
+Epoch 11/15
+44/44 [==============================] - 1s 27ms/step - loss: 0.0025 - accuracy: 1.0000 - val_loss: 0.0683 - val_accuracy: 0.9765
+Epoch 12/15
+44/44 [==============================] - 1s 27ms/step - loss: 0.0027 - accuracy: 0.9996 - val_loss: 0.0845 - val_accuracy: 0.9765
+Epoch 13/15
+44/44 [==============================] - 1s 27ms/step - loss: 6.3002e-04 - accuracy: 1.0000 - val_loss: 0.0788 - val_accuracy: 0.9829
+Epoch 14/15
+44/44 [==============================] - 1s 26ms/step - loss: 5.5422e-04 - accuracy: 1.0000 - val_loss: 0.0792 - val_accuracy: 0.9829
+Epoch 15/15
+44/44 [==============================] - 1s 30ms/step - loss: 9.4502e-04 - accuracy: 0.9999 - val_loss: 0.0769 - val_accuracy: 0.9786
+
+Dataset Original:
+{"id": 1, "text": "Procuro por um apartamento para comprar, na região norte de Campinas, com valor de até 500 mil, condomínio até 400 reais", "meta": {}, "annotation_approver": null, "labels": [[15, 26, "tipo_imovel"], [44, 56, "local_ref"], [60, 68, "cidade"], [87, 94, "vlr_max_imovel"], [111, 114, "vlr_max_condom"]]}
+
+{"id": 2, "text": "Gostaria de alugar um sobrado com no mínimo 2 quartos, próximo ao shopping Iguatemi, em São Carlos, com valor máximo de R$ 800,00 e área mínima de 100 m2", "meta": {}, "annotation_approver": null, "labels": [[22, 29, "tipo_imovel"], [55, 83, "local_ref"], [88, 98, "cidade"], [123, 129, "vlr_max_imovel"]]}
+
+{"id": 3, "text": "Quero comprar um lote em condomínio fechado que seja perto do centro de Rio Claro, com valor de até 200.000 reais", "meta": {}, "annotation_approver": null, "labels": [[17, 35, "tipo_imovel"], [53, 68, "local_ref"], [72, 81, "cidade"], [100, 107, "vlr_max_imovel"]]}
+
+{"id": 4, "text": "Tenho interesse em casa de condomínio que tenha no mínimo 4 dormitórios, na zona sul de São Paulo, até 1,5 milhões, idade do imóvel até 10 anos, condomínio no máximo 600,00 e iptu de no máximo 6 mil anual", "meta": {}, "annotation_approver": null, "labels": [[19, 37, "tipo_imovel"], [76, 84, "local_ref"], [88, 97, "cidade"], [103, 114, "vlr_max_imovel"], [166, 172, "vlr_max_condom"]]}
+
+{"id": 5, "text": "Terreno de esquina próximo à praia com valor máximo de 200 mil", "meta": {}, "annotation_approver": null, "labels": [[0, 7, "tipo_imovel"], [11, 34, "local_ref"], [55, 62, "vlr_max_imovel"]]}
+
+
+Dataset Spacy:
+('procuro por um apartamento para comprar, na regiao norte de campinas, com valor de ate 500 mil, condominio ate 400 reais', {'entities': [(15, 26, 'tipo_imovel'), (44, 56, 'local_ref'), (60, 68, 'cidade'), (87, 94, 'vlr_max_imovel'), (111, 114, 'vlr_max_condom')]})
+
+('gostaria de alugar um sobrado com no minimo 2 quartos, proximo ao shopping iguatemi, em sao carlos, com valor maximo de r$ 800,00 e area minima de 100 m2', {'entities': [(22, 29, 'tipo_imovel'), (55, 83, 'local_ref'), (88, 98, 'cidade'), (123, 129, 'vlr_max_imovel')]})
+
+('quero comprar um lote em condominio fechado que seja perto do centro de rio claro, com valor de ate 200.000 reais', {'entities': [(17, 35, 'tipo_imovel'), (53, 68, 'local_ref'), (72, 81, 'cidade'), (100, 107, 'vlr_max_imovel')]})
+
+('tenho interesse em casa de condominio que tenha no minimo 4 dormitorios, na zona sul de sao paulo, ate 1,5 milhoes, idade do imovel ate 10 anos, condominio no maximo 600,00 e iptu de no maximo 6 mil anual', {'entities': [(19, 37, 'tipo_imovel'), (76, 84, 'local_ref'), (88, 97, 'cidade'), (103, 114, 'vlr_max_imovel'), (166, 172, 'vlr_max_condom')]})
+
+('terreno de esquina proximo a praia com valor maximo de 200 mil', {'entities': [(0, 7, 'tipo_imovel'), (11, 34, 'local_ref'), (55, 62, 'vlr_max_imovel')]})
+
+
+Separação de spacy_dataset em dados de treino e teste:
+Dimensões: train_data = (56, 2) | test_data = (14, 2)
+
+Shapes de: train_data | test_data = (56, 2) | (14, 2)
+
+C:\Users\alexa\AppData\Local\Programs\Python\Python38\lib\site-packages\spacy\language.py:635: UserWarning: [W033] Training a new parser or NER using a model with no lexeme normalization table. This may degrade the performance of the model to some degree. If this is intentional or the language you're using doesn't have a normalization table, please ignore this warning. If this is surprising, make sure you have the spacy-lookups-data package installed. The languages with lexeme normalization tables are currently: da, de, el, en, id, lb, pt, ru, sr, ta, th.
+  proc.begin_training(
+
+
+Starting epoch 0
+Losses: {'ner': 767.2335401882883}
+
+Starting epoch 1
+Losses: {'ner': 360.6119849239476}
+
+Starting epoch 2
+Losses: {'ner': 272.29177901145886}
+
+Starting epoch 3
+Losses: {'ner': 281.1849511935834}
+
+Starting epoch 4
+Losses: {'ner': 242.29522241892118}
+
+Starting epoch 5
+Losses: {'ner': 241.85092127986718}
+
+Starting epoch 6
+Losses: {'ner': 173.42587811759404}
+
+Starting epoch 7
+Losses: {'ner': 116.19622808594431}
+
+Starting epoch 8
+Losses: {'ner': 86.84047691713954}
+
+Starting epoch 9
+Losses: {'ner': 51.260144747448074}
+
+Starting epoch 10
+Losses: {'ner': 46.65944157314341}
+
+Starting epoch 11
+Losses: {'ner': 26.49376521267567}
+
+Starting epoch 12
+Losses: {'ner': 12.242296642609123}
+
+Starting epoch 13
+Losses: {'ner': 8.779430823620089}
+
+Starting epoch 14
+Losses: {'ner': 4.238417584461498}
+
+Starting epoch 15
+Losses: {'ner': 4.599069659412244}
+
+Starting epoch 16
+Losses: {'ner': 4.246989957606926}
+
+Starting epoch 17
+Losses: {'ner': 7.890094616259713}
+
+Starting epoch 18
+Losses: {'ner': 10.812008394264906}
+
+Starting epoch 19
+Losses: {'ner': 6.798934701555455}
+
+Starting epoch 20
+Losses: {'ner': 1.6196397745045668}
+
+Starting epoch 21
+Losses: {'ner': 2.31754078679955}
+
+Starting epoch 22
+Losses: {'ner': 0.09029974231270232}
+
+Starting epoch 23
+Losses: {'ner': 0.2918189157044078}
+
+Starting epoch 24
+Losses: {'ner': 2.0262847271962277}
+
+Starting epoch 25
+Losses: {'ner': 0.013423483240648923}
+
+Starting epoch 26
+Losses: {'ner': 2.4910616354146407}
+
+Starting epoch 27
+Losses: {'ner': 1.2437872848771216}
+
+Starting epoch 28
+Losses: {'ner': 0.25422602326334875}
+
+Starting epoch 29
+Losses: {'ner': 2.5387397623341177}
+
+Starting epoch 30
+Losses: {'ner': 0.004426184309591694}
+
+Starting epoch 31
+Losses: {'ner': 0.16352598106350152}
+
+
+
+
+
+estou querendo comprar um sitio de aproximadamente 2000 m2 por ate 3 milhoes na cidade de nova odessa
+
+       ---- BLSTM ----
+tipo_imovel          : sitio
+vlr_max_imovel       : 3 milhoes
+cidade               : nova odessa
+
+## Acuracia: 1.0                        |       F1-Score macro: 1.0
+
+
+       ---- SPACY ----
+tipo_imovel          : sitio
+vlr_max_imovel       : 3 milhoes
+cidade               : nova odessa
+
+
+
+
+
+quero adquirir uma chacara de ate 1000 m2 na faixa de 800 reais em araraquara
+
+       ---- BLSTM ----
+tipo_imovel          : chacara
+vlr_max_condom       : 800
+cidade               : araraquara
+
+## Acuracia: 0.9333333333333333         |       F1-Score macro: 0.6
+
+
+       ---- SPACY ----
+tipo_imovel          : chacara
+vlr_max_condom       : 800
+cidade               : araraquara
+
+
+
+
+
+busco uma vaga de garagem para alugar no valor medio de r$ 300,00 mensal na regiao sul de belo horizonte
+
+       ---- BLSTM ----
+tipo_imovel          : garagem
+vlr_max_imovel       : 300,00
+local_ref            : regiao sul
+cidade               : belo horizonte
+
+## Acuracia: 1.0                        |       F1-Score macro: 1.0
+
+
+       ---- SPACY ----
+tipo_imovel          : garagem
+vlr_max_imovel       : 300,00
+local_ref            : regiao sul
+cidade               : belo horizonte
+
+
+
+
+
+procuro um salao de aproximadamente 30m2 proximo ao ponto de onibus com aluguel na faixa de 450 reais
+
+       ---- BLSTM ----
+tipo_imovel          : salao
+local_ref            : proximo ao ponto de onibus
+vlr_max_imovel       : 450
+
+## Acuracia: 1.0                        |       F1-Score macro: 1.0
+
+
+       ---- SPACY ----
+tipo_imovel          : salao
+local_ref            : proximo ao ponto de onibus
+vlr_max_imovel       : 450
+
+
+
+
+
+tenho interesse em alugar um deposito ao lado da estrada da cidade de ibate por volta de uns 300 reais mensais
+
+       ---- BLSTM ----
+tipo_imovel          : deposito
+local_ref            : ao lado
+cidade               : estrada
+cidade               : ibate
+vlr_max_condom       : 300
+
+## Acuracia: 0.8571428571428571         |       F1-Score macro: 0.5903119868637109
+
+
+       ---- SPACY ----
+tipo_imovel          : deposito
+local_ref            : ao lado da estrada
+cidade               : ibate
+vlr_max_condom       : 300
+
+
+
+
+
+procuro uma loja para comprar no centro de betim na faixa de 780 mil
+
+       ---- BLSTM ----
+tipo_imovel          : loja
+local_ref            : centro
+cidade               : betim
+vlr_max_imovel       : 780 mil
+
+## Acuracia: 1.0                        |       F1-Score macro: 1.0
+
+
+       ---- SPACY ----
+tipo_imovel          : loja
+local_ref            : centro
+cidade               : betim
+vlr_max_imovel       : 780 mil
+
+
+
+
+
+preciso de uma vaga de garagem para 2 carros na regiao central de salvador por ate r$ 500 reais mensais
+
+       ---- BLSTM ----
+tipo_imovel          : garagem
+local_ref            : regiao central
+cidade               : salvador
+vlr_max_imovel       : 500
+
+## Acuracia: 1.0                        |       F1-Score macro: 1.0
+
+
+       ---- SPACY ----
+tipo_imovel          : garagem
+local_ref            : regiao central
+cidade               : salvador
+vlr_max_imovel       : 500
+
+
+
+
+
+gostaria de comprar um apartamento a 100 metros da praia em ubatuba minimo de 100 m2 condominio ate 300 reais na faixa de 900 mil reais
+
+       ---- BLSTM ----
+tipo_imovel          : apartamento
+local_ref            : 100 metros da praia
+cidade               : ubatuba
+vlr_max_imovel       : 300
+vlr_max_imovel       : 900 mil
+
+## Acuracia: 0.9615384615384616         |       F1-Score macro: 0.8333333333333333
+
+
+       ---- SPACY ----
+tipo_imovel          : apartamento
+local_ref            : 100 metros da praia
+cidade               : ubatuba
+vlr_max_imovel       : 300
+vlr_max_imovel       : 900 mil
+
+
+
+
+
+sala comercial de uns 20m2 na regiao do parque em campinas aluguel maximo 670 reais
+
+       ---- BLSTM ----
+tipo_imovel          : sala
+local_ref            : regiao do parque
+cidade               : campinas
+vlr_max_imovel       : 670
+
+## Acuracia: 1.0                        |       F1-Score macro: 1.0
+
+
+       ---- SPACY ----
+tipo_imovel          : sala
+local_ref            : regiao do parque
+cidade               : campinas
+vlr_max_imovel       : 670
+
+
+
+
+
+necessito de uma casa de condominio condominio na faixa de uns 400 reais no maximo e no maximo 900 mil para compra
+
+       ---- BLSTM ----
+tipo_imovel          : casa de condominio condominio
+vlr_max_imovel       : 900 mil
+
+## Acuracia: 0.9090909090909091         |       F1-Score macro: 0.7390681003584229
+
+
+       ---- SPACY ----
+tipo_imovel          : necessito
+tipo_imovel          : casa de condominio
+vlr_max_condom       : 400
+vlr_max_imovel       : 900 mil
+
+
+
+
+
+quero comprar um lote em condominio fechado que seja perto do centro de rio claro com valor de ate 200.000 reais
+
+       ---- BLSTM ----
+tipo_imovel          : lote em condominio
+local_ref            : perto do centro
+cidade               : rio claro
+vlr_max_imovel       : 200.000
+
+## Acuracia: 1.0                        |       F1-Score macro: 1.0
+
+
+       ---- SPACY ----
+tipo_imovel          : lote em condominio
+local_ref            : perto do centro
+cidade               : rio claro
+vlr_max_imovel       : 200.000
+
+
+
+
+
+quero alugar uma chacara para final de semana em sao tome das letras pago no maximo 400 reais
+
+       ---- BLSTM ----
+tipo_imovel          : chacara
+cidade               : semana
+cidade               : sao tome das letras
+vlr_max_imovel       : 400
+
+## Acuracia: 0.9444444444444444         |       F1-Score macro: 0.9246376811594204
+
+
+       ---- SPACY ----
+tipo_imovel          : chacara
+local_ref            : semana
+cidade               : sao tome
+local_ref            : das letras
+vlr_max_imovel       : 400
+
+
+
+
+
+preciso de um apartamento para alugar proximo a um ponto de onibus na cidade de vargem grande do sul por ate 400 reais mensais
+
+       ---- BLSTM ----
+tipo_imovel          : apartamento
+local_ref            : proximo a
+cidade               : vargem grande do sul
+vlr_max_imovel       : 400
+
+## Acuracia: 0.9583333333333334         |       F1-Score macro: 0.9784126984126985
+
+
+       ---- SPACY ----
+tipo_imovel          : apartamento
+local_ref            : proximo a
+cidade               : ponto de onibus
+cidade               : vargem
+local_ref            : grande do sul
+vlr_max_imovel       : 400
+
+
+
+
+
+procuro uma vaga de garagem na regiao oeste de brasilia por ate 200 mensais
+
+       ---- BLSTM ----
+tipo_imovel          : garagem
+local_ref            : regiao oeste
+cidade               : brasilia
+vlr_max_imovel       : 200
+
+## Acuracia: 1.0                        |       F1-Score macro: 1.0
+
+
+       ---- SPACY ----
+tipo_imovel          : garagem
+local_ref            : regiao oeste
+cidade               : brasilia
+vlr_max_condom       : 200
+

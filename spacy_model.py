@@ -49,13 +49,11 @@ def build_spacy_dataset(filename):
 def build_train_model(train_data, epochs=32):
     """ Constrói e treina o modelo NER do Spacy com as épocas desejadas """
 
-    #epochs = 32# Para uso de minibatches
-    #epochs = 30# Sem minibatch (um registro de cada vez)
-
     nlp = spacy.blank('pt')  # create blank Language class
 
     # create the built-in pipeline components and add them to the pipeline
     # nlp.create_pipe works for built-ins that are registered with spaCy
+    ner = None
     if 'ner' not in nlp.pipe_names:
         ner = nlp.create_pipe('ner')
         nlp.add_pipe(ner, last=True)
@@ -85,36 +83,24 @@ def build_train_model(train_data, epochs=32):
             print("Starting epoch " + str(it))
             random.shuffle(train_data)
             losses = {}
-
             
-            # batch up the examples using spaCy's minibatch
+            # batch up the examples using spaCy's minibatch (size=4)
             batches = minibatch(train_data, size=compounding(4.0, 32.0, 1.001))
             
             #indice = 0
             for batch in batches:
                 #indice += 1
                 texts, annotations = zip(*batch)
-                #print('tamanho dos batches:', len(texts), ' ou ', len(annotations))
+                #print('ITERACAO:', it, '--> tamanho dos batches:', len(texts))
                 nlp.update(
-                            texts,  # batch of texts
-                            annotations,  # batch of annotations
-                            drop=0.2,  # dropout - make it harder to memorise data
-                            sgd=optimizer,  # callable to update weights
-                            losses=losses,
+                            texts,          # batch de textos
+                            annotations,    # batch de anotações
+                            drop=0.2,       # dropout para não memorizar ao invés de aprender
+                            sgd=optimizer,  # atualizador dos pesos
+                            losses=losses,  # perdas que serão reduzidas
                         )
-                
-            
-            #print('Quantidade de batches:', indice)
-            
-            """
-            for text, annotations in train_data:
-                    nlp.update(
-                        [text],  # batch of texts
-                        [annotations],  # batch of annotations
-                        drop=0.2,  # dropout - make it harder to memorise data
-                        sgd=optimizer,  # callable to update weights
-                        losses=losses)
-            """
+            #print('Quantidade de batches:', indice)            
+
             print("Losses:", losses, '\n')
 
     return nlp
@@ -124,12 +110,6 @@ def build_train_model(train_data, epochs=32):
 def predict(i, test_data, model):
     """ Faz a predição utilizando test_data[i] - dados de teste """
 
-
-    # TODO
-    # ====> USAR o test_data[i][1] RESPOSTA VERDADEIRA para comparação
-
-
-    #print('\n' + test_data[i][0])
     print('\n       ---- SPACY ----')
     doc = model(test_data[i][0])
     for ent in doc.ents:
@@ -140,7 +120,7 @@ def predict(i, test_data, model):
 
 
 def user_predictions(model):
-    """ Teste interativo com dados inseridos pelo usuário """
+    """ Teste interativo com dados inseridos pelo usuário (sentenças fora do vocabulário) """
 
     while True:
         test_text = input("\nDigite a sentença para reconhecer as entidades treinadas (ou 'fim' pra sair):\n")
@@ -154,6 +134,7 @@ def user_predictions(model):
 
 
 
+# ------------------------------ Início do Pipeline SPACY ------------------------------
 
 # Constrói dataset JSON para Spacy com pré-processamento (conversão de acentos e maiúsculos)
 spacy_dataset = build_spacy_dataset("dataset_22_01.json")
@@ -173,10 +154,3 @@ tp.print_shapes('Shapes de: train_data | test_data = ', train_data, test_data)
 
 # Treina o modelo NER do Spacy
 model = build_train_model(train_data, epochs=32)
-
-
-"""
-# Faz a predição com os dados de teste
-index = 13
-predict(index, test_data, model)
-"""

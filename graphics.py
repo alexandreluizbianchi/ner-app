@@ -28,27 +28,6 @@ def show_hist_classes(df):
     en = [t for t in df['Entity'] if t != 'O']
     lst_ents = list(set(en))
 
-    """
-    d = {}
-    for e in en:
-        if e in d.keys():
-            d[e] = d[e] + 1
-        else:
-            d[e] = 1
-    sm = 0
-    for k in d.keys():
-        print(k, '-->', d[k])
-        sm += d[k]
-
-    print('\n#classes:', len(list(d.keys())))
-    print('somatorio =', sm, '\n')
-    
-    print('en:', en)
-    print('len(en):', len(en))
-    print('\nlist(set(en)):', lst_ents)
-    print('len(list(set(en))):', len(lst_ents))
-    """
-
     plt.hist(en, bins=5*len(lst_ents), align='mid')
 
     plt.show()
@@ -63,5 +42,15 @@ def show_training_metric(history, metric):
     plt.xlabel("Epochs")
     plt.ylabel(metric)
     plt.legend(['train', 'validation'])
+    plt.show()
+
+
+def show_test_metric(metric_lst, metric):
+    """ Exibe um gráfico da metrica desejada para os testes """
+
+    plt.plot(metric_lst)
+    plt.xlabel("Instances")
+    plt.ylabel(metric)
+    plt.legend(['test'])
     plt.show()
 

@@ -124,4 +124,3 @@ def print_sentence_indexes(n, X, y, idx2tok, idx2ent):
         print('')
     print('')
 
-
