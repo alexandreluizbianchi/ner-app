@@ -9,19 +9,19 @@ Versão do python: 3.8.1
 # Criação OPCIONAL do virtual environment:
 
 ```bash
-python -m venv my_env
+python -m venv venv
 ```
 
 ### Ativação no Linux:
 
 ```bash
-source my_env/bin/activate
+source venv/bin/activate
 ```
 
 ### Ativação no Windows:
 
 ```bash
-cd my_env/Scripts
+cd venv/Scripts
 activate
 cd ..\..
 ```
